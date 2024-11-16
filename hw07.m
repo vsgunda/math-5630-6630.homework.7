@@ -6,7 +6,7 @@ classdef hw07
     
     methods (Static)
         function y = p1(func, y0, tspan, n_steps, method)
-            % Runge Kutta 4 method solves the ODE y' = f(t, y) with initial condition y(t0) = y0 
+            % Solves the ODE y' = f(t, y) with initial condition y(t0) = y0 using the specified method (euler, rk4, midpoint).
             % over the interval tspan=[a, b] with n_steps. The function f(t, y) is provided as a function handle. 
             % 
             %:param func: function handle f(t, y) that defines the ODE y' = f(t, y)
