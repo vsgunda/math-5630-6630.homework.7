@@ -1,5 +1,5 @@
-% Author: Your Name / your_email
-% Date: 2024-09-01
+% Author: Vishnu Gunda / vsg0005@auburn.edu
+% Date: 2024-12-11
 % Assignment Name: hw07
 
 classdef hw07
@@ -16,33 +16,47 @@ classdef hw07
             %:param method: string that specifies the method to use. It can be 'euler', 'midpoint', or 'rk4'
             %
             %:return: none, but plots the solution y(t) over the interval tspan
-            
-            % Your implementation here. Euler method is implemented for an example. Implement the other methods.
-
+        
+            % Define time step and initialize variables
             t0 = tspan(1); 
             tf = tspan(2); 
-            
             h = (tf - t0) / n_steps; 
             t = t0:h:tf; 
             y = zeros(1, length(t)); 
-            
             y(1) = y0;
-
+        
+            % Select method for solving the ODE
             if strcmp(method, 'euler')
                 for i = 1:n_steps
                     k1 = func(t(i), y(i));
                     y(i+1) = y(i) + h * k1;
                 end  
-            elseif strcmp(method, 'rk4')
-                % your code for Runge-Kutta 4 method here
-
             elseif strcmp(method, 'midpoint')
-                % your code for Midpoint method here
-
+                for i = 1:n_steps
+                    k1 = func(t(i), y(i));
+                    k2 = func(t(i) + h/2, y(i) + h/2 * k1);
+                    y(i+1) = y(i) + h * k2;
+                end
+            elseif strcmp(method, 'rk4')
+                for i = 1:n_steps
+                    k1 = func(t(i), y(i));
+                    k2 = func(t(i) + h/2, y(i) + h/2 * k1);
+                    k3 = func(t(i) + h/2, y(i) + h/2 * k2);
+                    k4 = func(t(i) + h, y(i) + h * k3);
+                    y(i+1) = y(i) + h/6 * (k1 + 2*k2 + 2*k3 + k4);
+                end
             else
                 error('Invalid method. Choose "euler", "rk4", or "midpoint".');
             end
+        
+            % Plot the solution
+            plot(t, y, 'LineWidth', 2);
+            xlabel('t');
+            ylabel('y(t)');
+            title(['Solution using ', method, ' method']);
+            grid on;
         end
+
 
         function p2(method)
             % Test the implemented methods on the ODE
@@ -62,10 +76,22 @@ classdef hw07
 
             % Your comment here (e.g, how does the error change with step size and the time span, etc.): 
             % 
-            % 
-            % 
+            % The numerical error satisfies the theoretical estimate or the
+            % rk4 method. The numerical results confirm the 4th-order 
+            % convergence because the error decreases at a rate proportional
+            % to h^4 as h increases. This is expected and is similar to the
+            % theoretical analysis of the rk4 method. 
             %
+            % The error decreases as the step size h decreases for all the
+            % tested intervals. The log-log plots of the error vs. step size 
+            % for the RK4 method show a slope of approximately 4, indicating 
+            % a 4th-order convergence rate. 
             %
+            % Over longer intervals, the absolute error grows, which is 
+            % expected due to the accumulation of truncation error over 
+            % more steps. However, the convergence rate remains consistent 
+            % with the theoretical prediction.
+            % 
 
             f = @(t, y) t * (y - t * sin(t));
 
@@ -115,9 +141,26 @@ classdef hw07
             %
             % Your comment here (e.g, how does the error change with step size and the time span, is there a clear difference in the running time and error (you may need to run a few times to conclude), etc.): 
             % 
+            % Both methods have a clear O(h^4)convergence rate. As the step
+            % size decreases, the global error for both methods decreases 
+            % significantly, following the expected h^4 scaling. Over longer
+            % time spans, the global error increases for both methods, as 
+            % expected. This is due to the accumulation of truncation errors 
+            % over more steps. However, the relative performance of the 
+            % methods remains consistent across time spans. The errors 
+            % produced by the 3/8-rule and RK4 are nearly identical across 
+            % all tested step sizes and intervals. This indicates that both 
+            % methods are equally accurate for the problem at hand.
             %
-            %
-            %
+            % The 3/8-rule consistently requires more runtime than RK4 for 
+            % all tested step sizes and intervals. This is due to the 
+            % slightly more complex calculations in the 3/8-rule, which
+            % involve additional coefficients and intermediate steps. The 
+            % runtime difference is relatively small for larger step sizes 
+            % but becomes more noticeable as the step size decreases and 
+            % the number of steps increases. This suggests that the 3/8-rule 
+            % may be less efficient for problems requiring very fine step 
+            % sizes.
             %
 
             function y = rk4_38_rule(func, y0, tspan, n_steps)
@@ -136,7 +179,14 @@ classdef hw07
                 
                 y(1) = y0;
 
-                % write your code here.
+                for i = 1:n_steps
+                    k1 = func(t(i), y(i));
+                    k2 = func(t(i) + h/3, y(i) + h/3 * k1);
+                    k3 = func(t(i) + 2*h/3, y(i) - h/3 * k1 + h * k2);
+                    k4 = func(t(i) + h, y(i) + h * k1 - h * k2 + h * k3);
+        
+                    y(i+1) = y(i) + h/8 * (k1 + 3*k2 + 3*k3 + k4);
+                end
             end
             
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
